@@ -1,0 +1,62 @@
+# Copies every image in images.txt to ghcr.io/kloudmate/public-images/<its path>, unchanged:
+# docker.io/grafana/grafana:13.3.0 becomes ghcr.io/kloudmate/public-images/grafana/grafana:13.3.0.
+# An image already there with the same digest is skipped.
+name: Mirror
+
+on:
+  push:
+    branches: [main]
+    paths: [images.txt, .github/workflows/mirror.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Packages this workflow's token creates are linked to this repository.
+  packages: write
+
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: imjasonh/setup-crane@v0.4
+
+      - name: Copy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEST: ghcr.io/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GH_TOKEN" | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
+          grep -vE '^\s*(#|$)' images.txt | while read -r ref; do
+            dst="$DEST/${ref#*/}"
+            if [ "$(crane digest "$dst" 2>/dev/null || true)" = "$(crane digest "$ref")" ]; then
+              echo "= $dst"
+            else
+              crane copy "$ref" "$dst"
+              echo "+ $dst"
+            fi
+          done
+
+      # A new package is private until an org owner makes it public once (package settings,
+      # Danger Zone); GitHub has no API for it. This lists each one that still is.
+      - name: Every image pulls without a login
+        env:
+          DEST: ghcr.io/${{ github.repository }}
+        run: |
+          set -uo pipefail
+          export DOCKER_CONFIG=$(mktemp -d)
+          private=$(grep -vE '^\s*(#|$)' images.txt | while read -r ref; do
+            crane manifest "$DEST/${ref#*/}" >/dev/null 2>&1 || echo "${ref#*/}"
+          done)
+          if [ -n "$private" ]; then
+            echo "::error::make these packages public: https://github.com/orgs/${GITHUB_REPOSITORY_OWNER}/packages"
+            echo "$private" | sed 's/:.*//' | sort -u | sed "s|^|public-images/|"
+            exit 1
+          fi
+          echo "every image pulls without a login" >> "$GITHUB_STEP_SUMMARY"

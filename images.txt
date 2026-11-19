@@ -1,0 +1,35 @@
+# Open-source images KloudMate installs, copied unchanged from their upstream registries.
+# The helm-charts release adds each release's list; nothing is removed, so older releases keep
+# pulling. One full reference per line.
+docker.io/clickhouse/clickhouse-keeper:26.3
+docker.io/clickhouse/clickhouse-server:26.3
+docker.io/dxflrs/garage:v2.4.1
+docker.io/grafana/grafana:13.3.0-distroless
+docker.io/hasura/graphql-engine:v2.50.3
+ghcr.io/clickhouse/clickhouse-operator:v0.0.6
+ghcr.io/jkroepke/kube-webhook-certgen:1.11.0
+ghcr.io/zalando/postgres-operator/logical-backup:v2.0.3
+ghcr.io/zalando/postgres-operator/pgbouncer:v2.0.3
+ghcr.io/zalando/postgres-operator:v2.0.3
+ghcr.io/zalando/spilo-18:4.1-p2
+quay.io/jetstack/cert-manager-acmesolver:v1.18.2
+quay.io/jetstack/cert-manager-cainjector:v1.18.2
+quay.io/jetstack/cert-manager-controller:v1.18.2
+quay.io/jetstack/cert-manager-startupapicheck:v1.18.2
+quay.io/jetstack/cert-manager-webhook:v1.18.2
+quay.io/kiwigrid/k8s-sidecar:2.14.1
+quay.io/opstree/redis-exporter:v1.44.0
+quay.io/opstree/redis-operator:v0.27.0
+quay.io/opstree/redis-sentinel:v7.0.15
+quay.io/opstree/redis:v7.0.15
+quay.io/prometheus-operator/prometheus-config-reloader:v0.94.2
+quay.io/prometheus-operator/prometheus-operator:v0.94.2
+quay.io/prometheus/alertmanager:v0.34.2
+quay.io/prometheus/blackbox-exporter:v0.29.1
+quay.io/prometheus/node-exporter:v1.12.1-distroless
+quay.io/prometheus/prometheus:v3.15.1-distroless
+quay.io/prometheuscommunity/postgres-exporter:v0.20.1
+quay.io/strimzi/kafka:0.45.2-kafka-3.9.1
+quay.io/strimzi/operator:0.45.2
+quay.io/thanos/thanos:v0.42.5
+registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
