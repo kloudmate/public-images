@@ -38,7 +38,13 @@ jobs:
             if [ "$(crane digest "$dst" 2>/dev/null || true)" = "$(crane digest "$ref")" ]; then
               echo "= $dst"
             else
-              crane copy "$ref" "$dst"
+              # A package's first push creates it, and GHCR refuses the rest of that push until
+              # the workflow's access to the new package takes effect: a retry goes through.
+              for try in 1 2 3; do
+                crane copy "$ref" "$dst" && break
+                [ "$try" = 3 ] && exit 1
+                sleep 15
+              done
               echo "+ $dst"
             fi
           done
