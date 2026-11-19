@@ -1,6 +1,7 @@
 # Copies every image in images.txt to ghcr.io/kloudmate/public-images/<its path>, unchanged:
 # docker.io/grafana/grafana:13.3.0 becomes ghcr.io/kloudmate/public-images/grafana/grafana:13.3.0.
-# An image already there with the same digest is skipped.
+# An image already there is never copied again: an upstream tag may move, and each release keeps
+# pulling the image it was released with.
 name: Mirror
 
 on:
@@ -35,7 +36,7 @@ jobs:
           printf '%s' "$GH_TOKEN" | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
           grep -vE '^\s*(#|$)' images.txt | while read -r ref; do
             dst="$DEST/${ref#*/}"
-            if [ "$(crane digest "$dst" 2>/dev/null || true)" = "$(crane digest "$ref")" ]; then
+            if crane digest "$dst" >/dev/null 2>&1; then
               echo "= $dst"
             else
               # A package's first push creates it, and GHCR refuses the rest of that push until
@@ -49,8 +50,8 @@ jobs:
             fi
           done
 
-      # A new package is private until an org owner makes it public once (package settings,
-      # Danger Zone); GitHub has no API for it. This lists each one that still is.
+      # A package this workflow creates takes this repository's visibility, public. This fails on
+      # any image that still needs a login, listing its package.
       - name: Every image pulls without a login
         env:
           DEST: ghcr.io/${{ github.repository }}

@@ -20,8 +20,9 @@ Every image here is public and pulls without a login. KloudMate's own images are
 [`images.txt`](images.txt) lists every image. Each KloudMate on-prem release adds its list;
 nothing is removed, so older releases keep pulling. A push to `images.txt` runs the
 [Mirror](.github/workflows/mirror.yml) workflow, which copies what's new and checks that every
-image pulls without a login. A package GitHub creates for the first time is private until an
-org owner makes it public once in its settings; the workflow lists any that still are.
+image pulls without a login. Each package takes this repository's visibility, so it is public;
+the workflow fails and lists any package that needs a login. An image already here is never
+copied again, even if its upstream tag moves: a release keeps pulling what it was released with.
 
 ## Licences
 
